@@ -9,3 +9,5 @@ project/plugins/project/
 .lib/
 
 *.swp
+
+api.conf
