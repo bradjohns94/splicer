@@ -8,7 +8,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.nd4j.linalg.activations.Activation
 import org.nd4j.linalg.api.ndarray.INDArray
-import org.nd4j.linalg.dataset.api.DataSet
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
 
 class CharPredictor(params: Params) {
   /* Build a hidden layer of Graves LSTM Nodes */
@@ -52,24 +52,13 @@ class CharPredictor(params: Params) {
   lstm.init()
   lstm.setListeners(new ScoreIterationListener(1))
 
-  val writer = new PrintWriter(new File("debug.out"))
-  def closeWriter: Unit = writer.close()
-
   def getParamMap: java.util.Map[String, INDArray] = lstm.paramTable
   def getParams: Array[Double] = lstm.params.data.asDouble
 
-  def train(ds: DataSet): Unit = {
-    val inputs = ds.getFeatures.data.asDouble
-    val outputs = ds.getLabels.data.asDouble
-    inputs.foreach{i => writer.write(" " + i.toString)}
-    writer.write("\t\t")
-    outputs.foreach{o => writer.write(" " + o.toString)}
-    writer.write("\n\n")
-    lstm.fit(ds)
-  }
+  def train(ds: DataSetIterator): Unit = lstm.fit(ds)
 
   def run(inputs: INDArray): INDArray = {
     val activations = lstm.feedForward(inputs)
-    activations.get(activations.size - 1).getRow(params.getExampleSize - 1)
+    activations.get(activations.size - 1).getRow(params.getBatchSize - 1)
   }
 }

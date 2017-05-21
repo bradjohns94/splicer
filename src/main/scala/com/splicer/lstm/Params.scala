@@ -29,10 +29,8 @@ class Params(agg: Aggregator) {
   /* Mutable params with metadata-derived estimates */
   // LSTM Memory. ~= 2 words
   var layerSize = (2 * agg.getAvgWordLength).toInt
-  // Length of input sequences. ~= 1/2 tweet
-  var exampleSize = (0.5 * agg.getAvgTweetLength).toInt
-  // Number of examples per training batch. ~= 1/5 of tweets
-  var batchSize = (0.2 * agg.length).toInt
+  // Length of the input sequence: ~= 1/2 tweet
+  var batchSize = (0.5 * agg.getAvgTweetLength).toInt
   // Trucated Backpropogation Through Time Length. ~= 2 words
   var tbpttLength = (2 * agg.getAvgWordLength).toInt
   // Number of times to iterate over the training set.
@@ -46,9 +44,6 @@ class Params(agg: Aggregator) {
 
   def setLayerSize(size: Int): Unit = layerSize = size
   def getLayerSize: Int = layerSize
-
-  def setExampleSize(size: Int): Unit =  exampleSize = size
-  def getExampleSize: Int = exampleSize
 
   def setBatchSize(size: Int): Unit = batchSize = size
   def getBatchSize: Int = batchSize

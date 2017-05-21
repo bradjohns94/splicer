@@ -5,7 +5,7 @@ import java.io.{File, PrintWriter}
 import scopt._
 
 import com.splicer.lstm._
-import com.splicer.nlp.{Generator, Trainer}
+import com.splicer.nlp.Generator
 import com.splicer.twitter._
 
 object Main {
@@ -50,6 +50,7 @@ object Main {
     train(agg, params, lstm)
     val gen = new Generator(agg, params, lstm)
     (gen.getStart.length to 140).foreach{ i => gen.next }
+    println(gen.output)
   }
 
   /* Get a feel for what direction to tune hyperparameters
@@ -61,8 +62,8 @@ object Main {
 
     /* Get average value that next character is below avg */
     def trainAndGet(iterations: Int): Double = {
-      val testTweet = agg.filter(_.length > params.getExampleSize)(0)
-      val nextChar = params.getCharOrder.indexOf(testTweet(params.getExampleSize + 1))
+      val testTweet = agg.filter(_.length > params.getBatchSize)(0)
+      val nextChar = params.getCharOrder.indexOf(testTweet(params.getBatchSize + 1))
 
       /* Get the difference of the expected character from the max in
        * one training session */
@@ -132,8 +133,8 @@ object Main {
 
   def train(agg: Aggregator, params: Params, lstm: CharPredictor): Unit = {
     (0 until params.getEpochs).foreach{_ =>
-      val trainer = new Trainer(agg, params, lstm)
-      trainer.join
+      val dsIterator = new CharIterator(agg, params)
+      lstm.train(dsIterator)
     }
   }
 }
